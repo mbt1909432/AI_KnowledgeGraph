@@ -1,0 +1,8 @@
+python -m http.server 5173 --directory E:\pycharm_project\AI_KnowledgeGraph\FrontendCode\final
+
+
+http://127.0.0.1:5173/graph_visualization.html
+
+
+
+python -m http.server 5173 --directory \FrontendCode\test\final

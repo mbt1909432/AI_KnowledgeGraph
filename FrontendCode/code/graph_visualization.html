@@ -1,0 +1,1826 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <title>知识图谱可视化</title>
+
+    <!-- CSS FILES -->
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Open+Sans&display=swap"
+          rel="stylesheet">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/bootstrap-icons.css" rel="stylesheet">
+    <link href="css/templatemo-topic-listing.css" rel="stylesheet">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+
+    <style>
+        /* 全局样式优化 */
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #1B1B2F 0%, #162447 100%);
+            color: #EAEAEA;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* 添加背景点阵效果 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: radial-gradient(white 1px, transparent 1px),
+            radial-gradient(white 1px, transparent 1px);
+            background-size: 50px 50px;
+            background-position: 0 0, 25px 25px;
+            animation: twinkle 8s infinite linear;
+            opacity: 0.1;
+            pointer-events: none;
+        }
+
+        @keyframes twinkle {
+            0% {
+                opacity: 0.1;
+            }
+            50% {
+                opacity: 0.2;
+            }
+            100% {
+                opacity: 0.1;
+            }
+        }
+
+        /* 导航栏样式优化 */
+        .navbar {
+            background: rgba(42, 42, 64, 0.95) !important;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+        }
+
+        .navbar-brand {
+            color: #D4AF37 !important;
+            font-weight: 600;
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+        }
+
+        .nav-link {
+            color: #BFBFBF !important;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: #D4AF37 !important;
+            background: rgba(212, 175, 55, 0.1);
+            border-radius: 8px;
+        }
+
+        /* 图谱容器样式优化 */
+        #graph-container {
+            background: rgba(42, 42, 64, 0.8);
+            box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease;
+        }
+
+        #graph-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.25);
+        }
+
+        /* 搜索框样式优化 */
+        .search-container .form-control {
+            background: rgba(42, 42, 64, 0.8);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            color: #EAEAEA;
+            backdrop-filter: blur(10px);
+        }
+
+        .search-container .btn-primary {
+            background: linear-gradient(45deg, #D4AF37, #FFD700);
+            border: none;
+            color: #1B1B2F;
+            font-weight: 600;
+        }
+
+        /* 标题样式优化 */
+        h2 {
+            color: #D4AF37;
+            font-weight: 600;
+            text-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+            position: relative;
+        }
+
+        h2:after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 50px;
+            height: 2px;
+            background: linear-gradient(to right, #D4AF37, #FFD700);
+        }
+
+        /* 添加粒子效果容器 */
+        #particles-js {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        /* 主要内容区域样式优化 */
+        .section-padding {
+            padding: 100px 0 80px 0;
+            background-color: transparent;
+        }
+
+        /* 页面标题区域样式优化 */
+        .page-title {
+            margin-bottom: 40px;
+            margin-top: 20px;
+        }
+
+        h2 {
+            color: #D4AF37;
+            font-weight: 600;
+            position: relative;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+
+        h2:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 2px;
+            background: linear-gradient(to right, #D4AF37, #FFD700);
+        }
+
+        /* 图谱容器样式优化 */
+        #graph-container {
+            background: rgba(42, 42, 64, 0.8);
+            box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        /* 搜索框样式优化 */
+        .search-container .form-control {
+            background: rgba(42, 42, 64, 0.8);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            color: #1B1B2F;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .search-container .form-control::placeholder {
+            color: #666666;
+        }
+
+        .search-container .btn {
+            background: linear-gradient(45deg, #D4AF37, #FFD700);
+            border: none;
+            color: #1B1B2F;
+        }
+
+        /* 工具提示样式优化 */
+        .tooltip {
+            background: rgba(42, 42, 64, 0.9);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            color: #EAEAEA;
+        }
+
+        /* 图例样式优化 */
+        .legend {
+            background: rgba(42, 42, 64, 0.9);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            color: #EAEAEA;
+        }
+
+        /* 缩放控制按钮样式 */
+        .zoom-controls .zoom-button {
+            background: rgba(42, 42, 64, 0.9);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            color: #D4AF37;
+        }
+
+        .zoom-controls .zoom-button:hover {
+            background: rgba(212, 175, 55, 0.2);
+        }
+
+        .zoom-controls .zoom-button i {
+            color: #D4AF37;
+        }
+
+        /* Chatbot 样式优化 */
+        .chatbot-toggle {
+            background: #D4AF37;
+        }
+
+        .chatbot-header {
+            background: linear-gradient(45deg, #1B1B2F, #2A2A40);
+            color: #89CFF0;
+            padding: 15px;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+
+        .chatbot-header h5 {
+            color: #89CFF0;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .chatbot-box {
+            background: rgba(42, 42, 64, 0.95);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+        }
+
+        .message.user .message-content {
+            background: #D4AF37;
+            color: #1B1B2F;
+        }
+
+        .message.bot .message-content {
+            background: rgba(212, 175, 55, 0.1);
+            color: #EAEAEA;
+        }
+
+        #sendMessage {
+            background: #D4AF37;
+            color: #1B1B2F;
+        }
+
+        /* 搜索结果样式优化 */
+        #search-results {
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-result-item {
+            color: #1B1B2F;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+            padding: 10px 15px;
+        }
+
+        .search-result-item:hover {
+            background-color: rgba(212, 175, 55, 0.1);
+        }
+
+        .search-result-item strong {
+            color: #1B1B2F;
+        }
+
+        .search-result-item small {
+            color: #666666;
+        }
+
+        /* SVG 元素样式优化 */
+        svg {
+            background-color: transparent;
+        }
+
+        .links line {
+            stroke: rgba(212, 175, 55, 0.2);
+        }
+
+        .node-label {
+            fill: #EAEAEA;
+        }
+
+        .link-label {
+            fill: #BFBFBF;
+        }
+
+        /* 自定义滚动条 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #2A2A40;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #1B1B2F;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #2A2A40;
+        }
+
+        /* 响应式优化 */
+        @media (max-width: 768px) {
+            .section-padding {
+                padding: 60px 0;
+            }
+
+            #graph-container {
+                height: 400px;
+            }
+        }
+
+        #graph-container {
+            width: 100%;
+            height: 600px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            margin: 20px 0;
+            overflow: hidden;
+            position: relative;
+            background-color: #ffffff;
+            box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.05);
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff;
+        }
+
+        .links line {
+            stroke: #e9ecef;
+            stroke-opacity: 0.8;
+            stroke-width: 1px;
+        }
+
+        .nodes circle {
+            stroke: #ffffff;
+            stroke-width: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .nodes circle:hover {
+            stroke: #D4AF37;
+            stroke-width: 3px;
+        }
+
+        .node-label {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 12px;
+            fill: #717275;
+            pointer-events: none;
+        }
+
+        .link-label {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 10px;
+            fill: #717275;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .link:hover .link-label {
+            opacity: 1;
+        }
+
+        .tooltip {
+            position: absolute;
+            text-align: left;
+            padding: 12px 15px;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 13px;
+            background: #ffffff;
+            border-radius: 10px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+            max-width: 300px;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            color: #717275;
+        }
+
+        .tooltip strong {
+            color: #5b6670;
+            font-weight: 600;
+        }
+
+        .legend {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 15px 20px;
+            border-radius: 15px;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 8px 0;
+            font-size: 12px;
+            color: #717275;
+        }
+
+        .legend-color {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .search-container {
+            position: relative;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .search-container .form-control {
+            border-radius: 20px 0 0 20px;
+            border: 1px solid rgba(128, 208, 199, 0.3);
+            padding: 10px 20px;
+            font-size: 14px;
+        }
+
+        .search-container .btn {
+            border-radius: 0 20px 20px 0;
+            background: linear-gradient(to right, #0062ff, #13547a);
+            border: none;
+            padding: 10px 25px;
+            color: white;
+            font-weight: 500;
+        }
+
+        .search-container .btn:hover {
+            opacity: 0.9;
+        }
+
+        #search-results {
+            position: absolute;
+            width: 100%;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .search-result-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .search-result-item:hover {
+            background-color: rgba(128, 208, 199, 0.1);
+        }
+
+        .highlight {
+            animation: pulse 2s;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.5);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        /* 缩放控制按钮样式 */
+        .zoom-controls {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 1000;
+        }
+
+        .zoom-button {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            background: white;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .zoom-button:hover {
+            background: #f8f9fa;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .zoom-button i {
+            color: #13547a;
+            font-size: 16px;
+        }
+
+        .chatbot-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .chatbot-toggle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #13547a;
+            border: none;
+            color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .chatbot-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .chatbot-toggle i {
+            font-size: 24px;
+        }
+
+        .chatbot-box {
+            position: absolute;
+            bottom: 80px;
+            right: 0;
+            width: 350px;
+            height: 500px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+            visibility: visible;
+            opacity: 1;
+            transform: translateY(0);
+            transition: all 0.3s ease;
+        }
+
+        .chatbot-box.hidden {
+            visibility: hidden;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .chatbot-header {
+            padding: 15px 20px;
+            background: #13547a;
+            color: white;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chatbot-header h5 {
+            margin: 0;
+            font-size: 16px;
+            flex-shrink: 0;
+            margin-right: 10px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message.user {
+            align-items: flex-end;
+        }
+
+        .message.bot {
+            align-items: flex-start;
+        }
+
+        .message-content {
+            max-width: 80%;
+            padding: 10px 15px;
+            border-radius: 15px;
+            margin-bottom: 5px;
+        }
+
+        .message.user .message-content {
+            background: #13547a;
+            color: white;
+            border-radius: 15px 15px 0 15px;
+        }
+
+        .message.bot .message-content {
+            background: #f0f2f5;
+            color: black;
+            border-radius: 15px 15px 15px 0;
+        }
+
+        .chat-input-container {
+            padding: 15px;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 10px;
+        }
+
+        #chatInput {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            outline: none;
+        }
+
+        #sendMessage {
+            background: #13547a;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #sendMessage:hover {
+            background: #0d3d5a;
+        }
+
+        .chat-mode-select {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            color: white;
+            padding: 2px 8px;
+            font-size: 12px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .chat-mode-select option {
+            background: #13547a;
+            color: white;
+        }
+
+        .chat-mode-select:focus {
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* 添加新的样式 */
+        .mode-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .mode-label {
+            color: white;
+            font-size: 12px;
+        }
+
+        /* 修改现有的 chatbot-input 样式 */
+        .chatbot-input {
+            padding: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
+            width: 100%;
+        }
+
+        .input-container {
+            width: 100%;
+        }
+
+        #userInput {
+            width: 100%;
+            min-height: 60px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: #fff;
+            color: #333;
+            resize: none;
+        }
+
+        /* 添加新的按钮组样式 */
+        .button-group {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+            width: 100%;
+        }
+
+        .send-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            background: #2193b0;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .send-btn:hover {
+            background: #13547a;
+        }
+
+        .generate-btn {
+            background: #4a90e2;
+        }
+
+        .generate-btn:hover {
+            background: #357abd;
+        }
+
+        .send-btn i {
+            font-size: 14px;
+        }
+
+        /* Chatbot 样式优化 */
+        .chatbot-header {
+            background: linear-gradient(45deg, #1B1B2F, #2A2A40);
+            color: #89CFF0;
+            padding: 15px;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+
+        .chatbot-header h5 {
+            color: #89CFF0;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .mode-selector {
+            color: #89CFF0;
+        }
+
+        .mode-label {
+            color: #89CFF0;
+            font-weight: 500;
+        }
+
+        .chat-mode-select {
+            background: rgba(42, 42, 64, 0.9);
+            color: #89CFF0;
+            border: 1px solid rgba(137, 207, 240, 0.3);
+            border-radius: 4px;
+            padding: 2px 5px;
+        }
+
+        .close-btn {
+            color: #89CFF0;
+            background: transparent;
+            border: none;
+            padding: 5px;
+        }
+
+        .close-btn:hover {
+            color: #B0E2FF;
+        }
+
+        .references-section {
+            padding: 30px 0;
+            background: rgba(42, 42, 64, 0.8);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(212, 175, 55, 0.3);
+            margin-top: 50px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .references-content {
+            text-align: center;
+        }
+
+        .references-content h3 {
+            color: #D4AF37;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 400;
+            letter-spacing: 2px;
+        }
+
+        .reference-list {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .reference-item {
+            font-family: "FangSong", serif;
+            transition: color 0.3s ease;
+        }
+
+        .reference-item:hover {
+            color: #D4AF37;
+            cursor: pointer;
+        }
+
+        .divider {
+            color: rgba(212, 175, 55, 0.5);
+        }
+
+        @media (max-width: 768px) {
+            .reference-list {
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .divider {
+                display: none;
+            }
+        }
+
+        .interaction-guide {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 20px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .guide-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .guide-item i {
+            color: #D4AF37;
+        }
+
+        .filter-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-label {
+            color: #D4AF37;
+            font-weight: 500;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-button {
+            padding: 4px 12px;
+            border-radius: 15px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            background: rgba(42, 42, 64, 0.8);
+            color: #EAEAEA;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-button.active {
+            background: #D4AF37;
+            color: #1B1B2F;
+        }
+    </style>
+</head>
+
+<body id="top">
+<main>
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="GenStory.html">
+                <i class="bi-back"></i>
+                <span>知识图谱</span>
+            </a>
+
+            <div class="d-lg-none ms-auto me-4">
+                <a class="navbar-icon bi-person smoothscroll" href="#top"></a>
+            </div>
+
+            <button aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"
+                    class="navbar-toggler" data-bs-target="#navbarNav" data-bs-toggle="collapse" type="button">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-lg-5 me-lg-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="GenStory.html">首页</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="graph_visualization.html">知识图谱</a>
+                    </li>
+                </ul>
+
+                <div class="d-none d-lg-block">
+                    <a class="navbar-icon bi-person smoothscroll" href="#top"></a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要容区域 -->
+    <section class="section-padding">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="page-title">
+                        <h2>JewelMap</h2>
+                    </div>
+                    <div class="search-container mb-4">
+                        <div class="input-group">
+                            <input class="form-control" id="search-input" placeholder="请输入实体名称（如：赤玉）..."
+                                   type="text">
+                            <button class="btn btn-primary" id="search-button" type="button">
+                                <i class="bi bi-search"></i> 搜索
+                            </button>
+                        </div>
+                        <div class="mt-2" id="search-results"></div>
+                    </div>
+                    <div class="interaction-guide">
+                        <div class="guide-item">
+                            <i class="bi bi-mouse"></i>
+                            <span>拖拽节点进行移动</span>
+                        </div>
+                        <div class="guide-item">
+                            <i class="bi bi-zoom-in"></i>
+                            <span>滚轮缩放查看细节</span>
+                        </div>
+                        <div class="guide-item">
+                            <i class="bi bi-search"></i>
+                            <span>搜索定位目标节点</span>
+                        </div>
+                    </div>
+                    <div class="filter-container mb-3">
+                        <div class="filter-label">节点类型筛选：</div>
+                        <div class="filter-buttons" id="typeFilters">
+                            <button class="filter-button active" data-type="all">全部</button>
+                            <!-- 其他按钮将通过 JavaScript 动态生成 -->
+                        </div>
+                    </div>
+                    <div id="graph-container">
+                        <svg></svg>
+                        <div class="tooltip"></div>
+                        <div class="legend"></div>
+                        <!-- 添加缩放控制按钮组 -->
+                        <div class="zoom-controls">
+                            <button class="zoom-button" id="zoom-in">
+                                <i class="bi bi-plus-lg"></i>
+                            </button>
+                            <button class="zoom-button" id="zoom-out">
+                                <i class="bi bi-dash-lg"></i>
+                            </button>
+                            <button class="zoom-button" id="zoom-reset">
+                                <i class="bi bi-arrow-counterclockwise"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<!-- JAVASCRIPT FILES -->
+<script src="js/jquery.min.js"></script>
+<script src="js/bootstrap.bundle.min.js"></script>
+<script src="js/jquery.sticky.js"></script>
+<script src="./graph_json.js" type="text/javascript"></script>
+<script>
+
+    // 更新 SVG 尺寸计算
+    const container = document.getElementById('graph-container');
+    const graphData = graphJson;
+
+    const svg = d3.select("#graph-container svg"),
+        width = container.clientWidth,
+        height = container.clientHeight;
+
+    svg.attr("viewBox", [0, 0, width, height]);
+
+    const g = svg.append("g");
+
+    const entityTypes = [...new Set(graphData.nodes.map(d => d.entity_type))];
+    const customColors = [
+        '#80d0c7',  // 青绿色
+        '#13547a',  // 深蓝色
+        '#ff8c69',  // 珊瑚色
+        '#8e44ad',  // 紫色
+        '#2ecc71',  // 翠绿色
+        '#e67e22',  // 橙色
+        '#3498db',  // 蓝色
+        '#e74c3c',  // 红色
+        '#1abc9c',  // 绿松石色
+        '#f1c40f'   // 黄色
+    ];
+
+    const color = d3.scaleOrdinal(customColors).domain(entityTypes);
+
+    const simulation = d3.forceSimulation(graphData.nodes)
+        .force("link", d3.forceLink(graphData.links).id(d => d.id).distance(150))
+        .force("charge", d3.forceManyBody().strength(-300))
+        .force("center", d3.forceCenter(width / 2, height / 2))
+        .force("collide", d3.forceCollide().radius(30));
+
+    const linkGroup = g.append("g")
+        .attr("class", "links")
+        .selectAll("g")
+        .data(graphData.links)
+        .enter().append("g")
+        .attr("class", "link");
+
+    const link = linkGroup.append("line")
+        .attr("stroke-width", 1)
+        .style("opacity", 0.6);
+
+    const linkLabel = linkGroup.append("text")
+        .attr("class", "link-label")
+        .text(d => d.description || "")
+        .style('opacity', 0)
+        .style('font-size', '10px')
+        .style('fill', '#EAEAEA')
+        .style('pointer-events', 'none');
+
+    const node = g.append("g")
+        .attr("class", "nodes")
+        .selectAll("circle")
+        .data(graphData.nodes)
+        .enter().append("circle")
+        .attr("r", 6)
+        .attr("fill", d => color(d.entity_type))
+        .call(d3.drag()
+            .on("start", dragstarted)
+            .on("drag", dragged)
+            .on("end", dragended));
+
+    const nodeLabel = g.append("g")
+        .attr("class", "node-labels")
+        .selectAll("text")
+        .data(graphData.nodes)
+        .enter().append("text")
+        .attr("class", "node-label")
+        .text(d => d.id);
+
+    const tooltip = d3.select(".tooltip");
+
+    node.on("mouseover", function (event, d) {
+        d3.select(this)
+            .transition()
+            .duration(200)
+            .attr("r", 8);
+
+        tooltip.transition()
+            .duration(200)
+            .style("opacity", 1);
+        tooltip.html(`<strong>${d.id}</strong><br>类型: ${d.entity_type}<br>描述: ${d.description || "暂无描述"}`)
+            .style("left", (event.pageX + 10) + "px")
+            .style("top", (event.pageY - 28) + "px");
+    })
+        .on("mouseout", function (d) {
+            d3.select(this)
+                .transition()
+                .duration(200)
+                .attr("r", 6);
+
+            tooltip.transition()
+                .duration(500)
+                .style("opacity", 0);
+        });
+
+    const legend = d3.select(".legend");
+    entityTypes.forEach(type => {
+        legend.append("div")
+            .attr("class", "legend-item")
+            .html(`<span class="legend-color" style="background-color: ${color(type)}"></span>${type}`);
+    });
+
+    simulation
+        .nodes(graphData.nodes)
+        .on("tick", ticked);
+
+    simulation.force("link")
+        .links(graphData.links);
+
+    function ticked() {
+        link
+            .attr("x1", d => d.source.x)
+            .attr("y1", d => d.source.y)
+            .attr("x2", d => d.target.x)
+            .attr("y2", d => d.target.y);
+
+        linkLabel
+            .attr("x", d => (d.source.x + d.target.x) / 2)
+            .attr("y", d => (d.source.y + d.target.y) / 2)
+            .attr("text-anchor", "middle")
+            .attr("dominant-baseline", "middle");
+
+        node
+            .attr("cx", d => d.x)
+            .attr("cy", d => d.y);
+
+        nodeLabel
+            .attr("x", d => d.x + 8)
+            .attr("y", d => d.y + 3);
+    }
+
+    function dragstarted(event) {
+        if (!event.active) simulation.alphaTarget(0.3).restart();
+        event.subject.fx = event.subject.x;
+        event.subject.fy = event.subject.y;
+    }
+
+    function dragged(event) {
+        event.subject.fx = event.x;
+        event.subject.fy = event.y;
+    }
+
+    function dragended(event) {
+        if (!event.active) simulation.alphaTarget(0);
+        event.subject.fx = null;
+        event.subject.fy = null;
+    }
+
+    // 新缩放范围和初始化
+    const zoom = d3.zoom()
+        .scaleExtent([0.2, 4])  // 调整缩放范围
+        .on("zoom", zoomed);
+
+    svg.call(zoom);
+
+    // 添加初始缩以适应容器
+    svg.call(zoom.transform, d3.zoomIdentity
+        .translate(width / 2, height / 2)
+        .scale(0.9));
+
+    // 缩放控制功能
+    const zoomIn = document.getElementById('zoom-in');
+    const zoomOut = document.getElementById('zoom-out');
+    const zoomReset = document.getElementById('zoom-reset');
+
+    // 缩放步长
+    const ZOOM_STEP = 0.2;
+
+    // 获取当前变换
+    function getCurrentTransform() {
+        return d3.zoomTransform(svg.node());
+    }
+
+    // 放大
+    zoomIn.addEventListener('click', () => {
+        const transform = getCurrentTransform();
+        svg.transition()
+            .duration(300)
+            .call(zoom.transform,
+                d3.zoomIdentity
+                    .translate(transform.x, transform.y)
+                    .scale(transform.k + ZOOM_STEP)
+            );
+    });
+
+    // 缩小
+    zoomOut.addEventListener('click', () => {
+        const transform = getCurrentTransform();
+        svg.transition()
+            .duration(300)
+            .call(zoom.transform,
+                d3.zoomIdentity
+                    .translate(transform.x, transform.y)
+                    .scale(Math.max(0.2, transform.k - ZOOM_STEP))
+            );
+    });
+
+    // 重置
+    zoomReset.addEventListener('click', () => {
+        svg.transition()
+            .duration(500)
+            .call(zoom.transform,
+                d3.zoomIdentity
+                    .translate(width / 2, height / 2)
+                    .scale(0.9)
+            );
+    });
+
+    // 改进缩放函数
+    function zoomed(event) {
+        g.attr("transform", event.transform);
+    }
+
+    // 确保在页面加载完成后绑定事件
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('Zoom controls initialized');
+        console.log('Zoom in button:', zoomIn);
+        console.log('Zoom out button:', zoomOut);
+        console.log('Zoom reset button:', zoomReset);
+
+        // 添加搜索输入框的引
+        const searchInput = document.getElementById('search-input');
+        const searchButton = document.getElementById('search-button');
+        const searchResults = document.getElementById('search-results');
+
+        async function modifyText(newText) {
+            try {
+                const response = await fetch('http://127.0.0.1:8000/modify_text', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        query: newText,
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+
+                } else {
+                    addMessage('抱歉，处理您的问题时出现错误，请稍后重试。', 'bot');
+                    console.error('Query error:', response.statusText);
+                }
+            } catch (error) {
+                addMessage('抱歉，连接服务器时出现错误，请检查服务是否正常运行。', 'bot');
+                console.error('API call error:', error);
+            }
+        }
+
+        // 搜索功能实现
+        function searchNodes(searchTerm) {
+            console.log("FFFFFF")
+            console.log(searchTerm)
+            if (!searchTerm) {
+                searchResults.style.display = 'none';
+                return;
+            }
+
+            if (searchTerm === "") return;
+
+            const results = graphData.nodes.filter(node =>
+                node.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (node.description && node.description.toLowerCase().includes(searchTerm.toLowerCase()))
+            );
+
+            console.log('AAAAA')
+            console.log(results);
+            modifyText("")
+
+
+            displaySearchResults(results);
+        }
+
+        readAndParseTxtFile("http://127.0.0.1:8000/read_text").then(result => {
+            console.log("调用1");
+            console.log("result:");
+            console.log(result);
+            console.log("result:");
+            searchNodes(result);
+            console.log("调用2");
+        }).catch(error => {
+            console.error("读取和解析文件时发生错误", error);
+        });
+
+        // 显示搜索结果
+        function displaySearchResults(results) {
+            searchResults.innerHTML = '';
+
+            if (results.length === 0) {
+                searchResults.innerHTML = '<div class="search-result-item">未找到相关实体</div>';
+                searchResults.style.display = 'block';
+                return;
+            }
+
+            results.forEach(result => {
+                const div = document.createElement('div');
+                div.className = 'search-result-item';
+                div.innerHTML = `
+                            <strong>${result.id}</strong>
+                            <br>
+                            <small>${result.entity_type}</small>
+                            ${result.description ? `<br><small>${result.description}</small>` : ''}
+                        `;
+
+                div.addEventListener('click', () => highlightNode(result));
+                searchResults.appendChild(div);
+            });
+
+            searchResults.style.display = 'block';
+        }
+
+        function saveToTxt(data) {
+            let blob = new Blob([data], {type: "text/plain"});
+            let a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = "parameters.txt";
+            a.click();
+        }
+
+
+        // 高亮显示选中的节点
+        function highlightNode(selectedNode) {
+            // 重置所有节点的样式
+            node.attr('r', 6)
+                .style('stroke-width', 2)
+                .style('stroke', '#ffffff');
+
+            console.log('BBB')
+            console.log(selectedNode);
+            data = JSON.stringify(selectedNode);
+            //saveToTxt(data);
+            const dataObject = JSON.parse(data);
+            userInput.value="请介绍下"+dataObject.id
+
+            // 高亮选中的节点
+            node.filter(d => d.id === selectedNode.id)
+                .attr('r', 12)
+                .style('stroke-width', 4)
+                .style('stroke', '#ff0000')
+                .each(function (d) {
+                    // 将视图中心移动到选中节点
+                    const transform = d3.zoomTransform(svg.node());
+                    const dx = width / 2 - transform.applyX(d.x);
+                    const dy = height / 2 - transform.applyY(d.y);
+
+                    svg.transition()
+                        .duration(750)
+                        .call(zoom.transform, transform.translate(dx, dy));
+                });
+
+            // 隐藏搜索结果
+            searchResults.style.display = 'none';
+            searchInput.value = selectedNode.id;
+        }
+
+        // 绑定搜索
+        searchInput.addEventListener('input', (e) => {
+            searchNodes(e.target.value);
+        });
+
+        searchButton.addEventListener('click', () => {
+            searchNodes(searchInput.value);
+        });
+
+        // 点击空白处关闭搜索结果
+        document.addEventListener('click', (e) => {
+            if (!searchResults.contains(e.target) && e.target !== searchInput) {
+                searchResults.style.display = 'none';
+            }
+        });
+
+        // 添加按下回车键触发搜索
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                searchNodes(searchInput.value);
+            }
+        });
+
+        // Chatbot 相关代码
+        const chatbotToggle = document.getElementById('chatbotToggle');
+        const chatbotBox = document.getElementById('chatbotBox');
+        const closeChatbot = document.getElementById('closeChatbot');
+        const userInput = document.getElementById('userInput');
+        const sendButton = document.getElementById('sendButton');
+        const generateStoryButton = document.getElementById('generateStoryButton');
+        const chatMessages = document.getElementById('chatMessages');
+
+        // 检查元素是否存在
+        console.log('DOM Elements:', {
+            chatbotToggle,
+            chatbotBox,
+            closeChatbot,
+            userInput,
+            sendButton,
+            generateStoryButton,
+            chatMessages
+        });
+
+        // 切换对话框函数
+        function toggleChatbox() {
+            console.log('Toggle clicked');
+            if (chatbotBox && userInput) {
+                chatbotBox.classList.toggle('hidden');
+                if (!chatbotBox.classList.contains('hidden')) {
+                    setTimeout(() => {
+                        userInput.focus();
+                    }, 100);
+                }
+            }
+        }
+
+        // 添加消息到对话框
+        function addMessage(text, sender) {
+            if (!chatMessages) return;
+
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            messageDiv.innerHTML = `
+                        <div class="message-content">${text}</div>
+                    `;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // 修改 handleUserMessage 函数为异步函数，添加 API 调用
+        async function handleUserMessage(message, mode = 'global') {
+            addMessage(message, 'user');
+            addMessage('正在思考，请稍候...', 'bot');
+
+            try {
+                const response = await fetch('http://127.0.0.1:8000/KG_Talk', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        query: message,
+                        type: mode
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    addMessage(data.result || '抱歉，我没有找到相关信息。', 'bot');
+                } else {
+                    addMessage('抱歉，处理您的问题时出现错误，请稍后重试。', 'bot');
+                    console.error('Query error:', response.statusText);
+                }
+            } catch (error) {
+                addMessage('抱歉，连接服务器时出现错误，请检查服务是否正常运行。', 'bot');
+                console.error('API call error:', error);
+            }
+        }
+
+        // 修改提问按钮的事件监听器
+        if (sendButton) {
+            sendButton.addEventListener('click', async () => {
+                const message = userInput.value.trim();
+                const mode = document.getElementById('chatMode').value; // 获取当前选择的模式
+                if (message) {
+                    await handleUserMessage(message, mode);
+                    userInput.value = '';
+                }
+            });
+        }
+
+        // 修改回车发送的事件监听器
+        if (userInput) {
+            userInput.addEventListener('keypress', async (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    const message = userInput.value.trim();
+                    const mode = document.getElementById('chatMode').value; // 获取当前选择的模式
+                    if (message) {
+                        await handleUserMessage(message, mode);
+                        userInput.value = '';
+                    }
+                }
+            });
+        }
+
+        // 保持生成故事的功能不变
+        async function handleStoryGeneration(message) {
+            addMessage("生成故事", 'user');
+            addMessage('正在生成故事，请稍候...', 'bot');
+
+            try {
+                const response = await fetch('http://127.0.0.1:8000/KG_Story', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    addMessage(data.result || '生成的故事将显示在这里', 'bot');
+                } else {
+                    addMessage('抱歉，生成故事时出现错误，请稍后重试。', 'bot');
+                    console.error('Story generation error:', response.statusText);
+                }
+            } catch (error) {
+                addMessage('抱歉，连接服务器时出现错误，请检查服务是否正常运行。', 'bot');
+                console.error('API call error:', error);
+            }
+        }
+
+        // 生成故事按钮的事件监听器保持不变
+        if (generateStoryButton) {
+            generateStoryButton.addEventListener('click', async () => {
+                const message = "生成故事";
+                if (message) {
+                    await handleStoryGeneration(message);
+                    userInput.value = '';
+                }
+            });
+        }
+
+        if (chatbotToggle) {
+            chatbotToggle.addEventListener('click', toggleChatbox);
+        }
+
+        if (closeChatbot) {
+            closeChatbot.addEventListener('click', () => {
+                chatbotBox.classList.add('hidden');
+            });
+        }
+
+        // 添加欢迎消息
+        addMessage('你好！我是 AI 助手，有什么可帮你的吗？', 'bot');
+    });
+
+    // 删除之前定义的全局函数
+    // 如果需要全局访问，可以这样定义：
+    window.toggleChat = function () {
+        const chatbotBox = document.getElementById('chatbotBox');
+        if (chatbotBox) {
+            chatbotBox.classList.toggle('hidden');
+        }
+    };
+
+    // 监听滚动事件，改变导航栏颜色
+    window.addEventListener('scroll', function () {
+        const navbar = document.querySelector('.navbar');
+        if (window.scrollY > 50) {  // 当滚动超过50px时
+            navbar.classList.add('navbar-scrolled');
+        } else {
+            navbar.classList.remove('navbar-scrolled');
+        }
+    });
+
+    // 修改 initializeTypeFilters 函数
+    function initializeTypeFilters() {
+        // 确保 graphData 已经加载
+        if (!graphData || !graphData.nodes) {
+            console.error('Graph data not loaded');
+            return;
+        }
+
+        // 打印节点数据，用于调试
+        console.log('Nodes:', graphData.nodes);
+
+        // 获取所有实体类型
+        const entityTypes = [...new Set(graphData.nodes.map(d => d.entity_type))];
+        console.log('Entity Types:', entityTypes);
+
+        const filterContainer = document.getElementById('typeFilters');
+        if (!filterContainer) {
+            console.error('Filter container not found');
+            return;
+        }
+
+        // 清空现有按钮（除了"全部"按钮）
+        filterContainer.innerHTML = '';
+
+        // 添加"全部"按钮
+        const allButton = document.createElement('button');
+        allButton.className = 'filter-button active';
+        allButton.setAttribute('data-type', 'all');
+        allButton.innerHTML = `全部 <span class="count">${graphData.nodes.length}</span>`;
+        filterContainer.appendChild(allButton);
+
+        // 计算每种类型的节点数量
+        const typeCounts = {};
+        graphData.nodes.forEach(node => {
+            if (node.entity_type) {  // 确保 entity_type 存在
+                typeCounts[node.entity_type] = (typeCounts[node.entity_type] || 0) + 1;
+            }
+        });
+
+        console.log('Type counts:', typeCounts);
+
+        // 为每种类型创建筛选按钮
+        entityTypes.forEach(type => {
+            if (type) {  // 确保类型不为空
+                const button = document.createElement('button');
+                button.className = 'filter-button';
+                button.setAttribute('data-type', type);
+                button.innerHTML = `${type} <span class="count">${typeCounts[type]}</span>`;
+                filterContainer.appendChild(button);
+            }
+        });
+
+        // 添加点击事件处理
+        const filterButtons = document.querySelectorAll('.filter-button');
+        filterButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                const selectedType = this.getAttribute('data-type');
+                console.log('Selected type:', selectedType);
+
+                // 更新按钮状态
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+
+                // 调用筛选函数
+                filterNodes(selectedType);
+            });
+        });
+    }
+
+    // 确保在图谱数据加载完成后调用
+    simulation.on("end", function () {
+        console.log('Simulation ended, initializing filters...');
+        initializeTypeFilters();
+    });
+
+
+    function readAndParseTxtFile(filePath) {
+        return fetch(filePath, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                console.log("获取文件");
+                return response.json();  // 返回 JSON 数据，包含文件内容
+            })
+            .then(data => {
+                console.log("文件内容:", data.content);  // 输出文件内容
+                // 在这里你可以进一步处理文本
+                return data.content;  // 返回文本数据
+            })
+            .catch(error => {
+                console.error("读取文件时发生错误", error);
+                throw error;
+            });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        console.log('DOM loaded, waiting for graph data...');
+
+        setTimeout(() => {
+            console.log('Initializing filters...');
+            initializeTypeFilters();
+        }, 1000);
+
+
+    });
+
+
+    // 添加 filterNodes 函数定义
+    function filterNodes(selectedType) {
+        if (!selectedType) return;
+
+        console.log('Filtering nodes by type:', selectedType);
+
+        // 更新节点可见性
+        node.style('opacity', d => {
+            if (selectedType === 'all') return 1;
+            return d.entity_type === selectedType ? 1 : 0.2;
+        });
+
+        // 更新连接线可见性
+        link.style('opacity', d => {
+            if (selectedType === 'all') return 0.6;
+            return (d.source.entity_type === selectedType ||
+                d.target.entity_type === selectedType) ? 0.6 : 0.1;
+        });
+
+        // 更新节点标签可见性
+        nodeLabel.style('opacity', d => {
+            if (selectedType === 'all') return 1;
+            return d.entity_type === selectedType ? 1 : 0.2;
+        });
+
+        // 添加平滑过渡效果
+        node.transition().duration(300);
+        link.transition().duration(300);
+        nodeLabel.transition().duration(300);
+    }
+
+    // 添加连接线的鼠标悬浮事件
+    linkGroup.on("mouseover", function (event, d) {
+        // 显示连接线标签
+        d3.select(this).select('.link-label')
+            .transition()
+            .duration(200)
+            .style('opacity', 1)
+            .style('font-size', '12px');
+    })
+        .on("mouseout", function (event, d) {
+            // 隐藏连接线标签
+            d3.select(this).select('.link-label')
+                .transition()
+                .duration(200)
+                .style('opacity', 0)
+                .style('font-size', '10px');
+        });
+
+
+</script>
+
+<!-- 在 body 末尾添加 Chatbot 相关元素 -->
+<div class="chatbot-container">
+    <!-- Chatbot 图标按钮 -->
+    <button class="chatbot-toggle" id="chatbotToggle">
+        <i class="bi bi-chat-dots-fill"></i>
+    </button>
+
+    <!-- 对话框 -->
+    <div class="chatbot-box hidden" id="chatbotBox">
+        <div class="chatbot-header">
+            <div class="d-flex justify-content-between align-items-center w-100">
+                <h5>AI 助手</h5>
+                <div class="mode-selector">
+                    <span class="mode-label">检索类型：</span>
+                    <select class="chat-mode-select" id="chatMode">
+                        <option value="global">全局模式</option>
+                        <option value="local">局部模式</option>
+                    </select>
+                </div>
+                <button class="close-btn" id="closeChatbot">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <!-- 消息会动态添加到这里 -->
+        </div>
+        <div class="chatbot-input">
+            <div class="input-container">
+                <textarea id="userInput" placeholder="请输入您的问题..."></textarea>
+            </div>
+            <div class="button-group">
+                <button class="send-btn" id="sendButton">
+                    <i class="bi bi-send"></i>
+                    提问
+                </button>
+                <button class="send-btn generate-btn" id="generateStoryButton">
+                    <i class="bi bi-book"></i>
+                    生成故事
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 在 </main> 标签前添加 -->
+<footer class="references-section">
+    <div class="container">
+        <div class="references-content">
+            <h3>References</h3>
+            <div class="reference-list">
+                <span class="reference-item">《本草纲目》</span>
+                <span class="divider">·</span>
+                <span class="reference-item">《大藏经》</span>
+                <span class="divider">·</span>
+                <span class="reference-item">《山海经》</span>
+            </div>
+        </div>
+    </div>
+</footer>
+</body>
+</html>
+    

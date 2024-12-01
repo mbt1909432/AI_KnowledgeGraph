@@ -1,0 +1,46 @@
+-Example1-
+######################
+Entity_types: ['宝石', '功效']
+Text:
+《大方廣佛華嚴經》：
+念中無量佛剎起諸佛所持故國清淨離垢或有佛剎起泥土不清淨離明常闇冥罪眾生所住或有泥土剎煩惱大恐怖樂少憂苦多薄福之所處或有鐵世界或有赤銅國諸石山穢惡眾生業故起或有泥土剎眾生常苦惱長冥離光明光明海能照諸畜生趣中受無量種身隨宿行業故長受無量苦閻羅王界中飢渴苦常逼登上大火山長受無量苦或有七寶剎平正住莊嚴清淨業力起微妙善安隱彼佛剎土中唯見人天趣功德果成就常受諸快樂
+
+金銀摩尼。硨磲碼瑙。瑠璃珊瑚。琥珀珂貝。珍寶瓔珞。嚴身之具。及象馬輦輿。人民奴婢。國土城邑。園林遊觀。妻妾男女。一切所愛。皆悉施與。頭目耳鼻。肢節手足。深重佛故。而不貪惜。菩薩摩訶薩住於初地。能行大施。是菩薩以大悲心。大施心。救一切眾生故。勤求世間出世間利益之事。心無疲懈。是故菩薩生無疲倦功德。於諸經書。能自開解。是故生知經書功德。得如是知經書智慧。善能籌量應作不作。於上中下眾生。隨宜利益。是故菩薩生世智功德。得世智功德。則知時知量。慚愧莊嚴。修習自利利彼之道。是故則生慚愧功德。如是功德精勤修行。心不懈退。是精進不退功德。即得堪受力。得堪受力已。勤行供養一切諸佛。隨佛所說。如說修行諸佛子。是菩薩悉知生起如是淨地法。所謂信慈悲施。無有疲倦。知諸經書。善解世法。慚愧堪受。供養諸佛。如所說行。
+######################
+Output:
+("entity"{tuple_delimiter}"七寶"{tuple_delimiter}"宝石"{tuple_delimiter}"性质: 清淨"){record_delimiter}
+("entity"{tuple_delimiter}"平正住莊嚴清淨"{tuple_delimiter}"功效"{tuple_delimiter}"'出处': 《大方廣佛華嚴經》, '原文': '或有七寶剎平正住莊嚴清淨業力起微妙善安隱彼佛剎土中唯見人天趣功德果成就常受諸快樂', '解释': '七寶剎具有平正住莊嚴清淨的功效，能够带来微妙的安隐和快乐。'"){record_delimiter}
+("entity"{tuple_delimiter}"琥珀"{tuple_delimiter}"宝石"{tuple_delimiter}"性质: 珍贵"){record_delimiter}
+("entity"{tuple_delimiter}"珍寶瓔珞"{tuple_delimiter}"功效"{tuple_delimiter}"'出处': 《大方廣佛華嚴經》, '原文': '金銀摩尼。硨磲碼瑙。瑠璃珊瑚。琥珀珂貝。珍寶瓔珞。', '解释': '琥珀作为珍贵的宝石之一，具有装饰和美化的功效。'"){record_delimiter}
+("relationship"{tuple_delimiter}"七寶"{tuple_delimiter}"平正住莊嚴清淨"{tuple_delimiter}"七寶剎具有平正住莊嚴清淨的功效，能够带来微妙的安隐和快乐。"{tuple_delimiter}8){record_delimiter}
+("relationship"{tuple_delimiter}"琥珀"{tuple_delimiter}"珍寶瓔珞"{tuple_delimiter}"琥珀作为珍贵的宝石之一，具有装饰和美化的功效。"{tuple_delimiter}3){completion_delimiter}
+######################
+-Example2-
+######################
+Entity_types:['石头', '功效', '成分']
+text:
+《本經疏証》：
+1.鎮攝劑中，有補養肺氣白石英丸之用五味子
+2.【白石英】〔微溫〕。主消渴，陰痿不足。
+3.【白石英】〔微溫〕。益氣，補五藏。
+4.【白石英】微溫君。療肺痿，下氣，利小便。
+################
+Output:
+("entity"{tuple_delimiter}"白石英"{tuple_delimiter}"石头"{tuple_delimiter}"性质: 微温"){record_delimiter}
+("entity"{tuple_delimiter}"消渴"{tuple_delimiter}"功效"{tuple_delimiter}"'出处': '《本經疏証》', '原文': '【白石英】〔微溫〕。主消渴，陰痿不足。', '解释': '主要用于治疗口渴症状'"){record_delimiter}
+("entity"{tuple_delimiter}"阴痿不足"{tuple_delimiter}"功效"{tuple_delimiter}"'出处': '《本經疏証》', '原文': '【白石英】〔微溫〕。主消渴，陰痿不足。', '解释': '用于改善男性性功能障碍'"){record_delimiter}
+("entity"{tuple_delimiter}"益气"{tuple_delimiter}"功效"{tuple_delimiter}"'出处': '《本經疏証》', '原文': '【白石英】〔微溫〕。益氣，補五藏。', '解释': '增强身体的气血。'"){record_delimiter}
+("entity"{tuple_delimiter}"补五藏"{tuple_delimiter}"功效"{tuple_delimiter}"'出处': '《本經疏証》', '原文': '【白石英】〔微溫〕。益氣，補五藏。', '解释': '促进五脏的健康'"){record_delimiter}
+("entity"{tuple_delimiter}"疗肺痿"{tuple_delimiter}"功效"{tuple_delimiter}"'出处': '《本經疏証》', '原文': '【白石英】微溫君。療肺痿，下氣，利小便。', '解释': '治疗肺部虚弱。'"){record_delimiter}
+("entity"{tuple_delimiter}"下气"{tuple_delimiter}"功效"{tuple_delimiter}"'出处': '《本經疏証》', '原文': '【白石英】微溫君。療肺痿，下氣，利小便。', '解释': '促进气的流通，缓解气滞。'"){record_delimiter}
+("entity"{tuple_delimiter}"利小便"{tuple_delimiter}"功效"{tuple_delimiter}"'出处': '《本經疏証》', '原文': '【白石英】微溫君。療肺痿，下氣，利小便。', '解释': '促进尿液排出，改善尿频等症状。'"){record_delimiter}
+("entity"{tuple_delimiter}"五味子"{tuple_delimiter}"成分"{tuple_delimiter}"'出处': '《本經疏証》', '原文': '【白石英】微溫君。療肺痿，下氣，利小便。', '解释': '鎮攝劑中，有補養肺氣白石英丸之用五味子'"){record_delimiter}
+("relationship"{tuple_delimiter}"白石英"{tuple_delimiter}"消渴"{tuple_delimiter}"白石英用于治疗消渴，主要表现为口渴、饮水多。"{tuple_delimiter}9){record_delimiter}
+("relationship"{tuple_delimiter}"白石英"{tuple_delimiter}"阴痿不足"{tuple_delimiter}"白石英用于改善男性性功能障碍，主要表现为阳痿。"{tuple_delimiter}9){record_delimiter}
+("relationship"{tuple_delimiter}"白石英"{tuple_delimiter}"益气"{tuple_delimiter}"白石英具有益气的功效，能够增强身体的气血。"{tuple_delimiter}7){record_delimiter}
+("relationship"{tuple_delimiter}"白石英"{tuple_delimiter}"补五藏"{tuple_delimiter}"白石英能够补充五脏的健康，促进整体平衡。"{tuple_delimiter}7){record_delimiter}
+("relationship"{tuple_delimiter}"白石英"{tuple_delimiter}"下气"{tuple_delimiter}"白石英能够促进气的流通，缓解气滞。"{tuple_delimiter}5){record_delimiter}
+("relationship"{tuple_delimiter}"白石英"{tuple_delimiter}"疗肺痿"{tuple_delimiter}"白石英用于治疗肺部虚弱，改善呼吸功能。"{tuple_delimiter}7){record_delimiter}
+("relationship"{tuple_delimiter}"白石英"{tuple_delimiter}"利小便"{tuple_delimiter}"白石英能够促进尿液排出，改善尿频等症状。"{tuple_delimiter}3){record_delimiter}
+("relationship"{tuple_delimiter}"白石英"{tuple_delimiter}"五味子"{tuple_delimiter}"五味子作为白石英丸中的成分，具有补养肺气的作用"{tuple_delimiter}2){completion_delimiter}
+################

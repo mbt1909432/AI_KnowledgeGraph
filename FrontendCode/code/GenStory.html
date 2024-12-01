@@ -1,0 +1,1119 @@
+<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GenStory - Empowering Materials with Stories</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+  <style>
+    /* 全局样式 */
+    body {
+      font-family: 'Georgia', 'Times New Roman', serif; /* 英文字体为主 */
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #1B1B2F 0%, #162447 100%);
+      color: #EAEAEA; /* 浅灰白 */
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        radial-gradient(white 1px, transparent 1px),
+        radial-gradient(white 1px, transparent 1px);
+      background-size: 50px 50px;
+      background-position: 0 0, 25px 25px;
+      animation: twinkle 8s infinite linear;
+      opacity: 0.1;
+      pointer-events: none;
+    }
+
+    @keyframes twinkle {
+      0% { opacity: 0.1; }
+      50% { opacity: 0.2; }
+      100% { opacity: 0.1; }
+    }
+
+    header {
+      background-color: #2A2A40; /* 深灰蓝 */
+      color: #D4AF37; /* 金色 */
+      text-align: center;
+      padding: 3rem 1rem;
+    }
+
+    header h1 {
+      font-size: 3rem;
+      margin: 0;
+      font-weight: 700;
+      background: linear-gradient(45deg, #D4AF37, #FFD700, #D4AF37);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shine 3s linear infinite;
+      text-shadow: 
+        0 0 5px #D4AF37,
+        0 0 10px #D4AF37,
+        0 0 20px #D4AF37,
+        0 0 40px #D4AF37;
+      animation: neon 1.5s ease-in-out infinite alternate;
+    }
+
+    @keyframes shine {
+      to { background-position: 200% center; }
+    }
+
+    @keyframes neon {
+      from {
+        text-shadow: 
+          0 0 5px #D4AF37,
+          0 0 10px #D4AF37,
+          0 0 20px #D4AF37,
+          0 0 40px #D4AF37;
+      }
+      to {
+        text-shadow: 
+          0 0 10px #D4AF37,
+          0 0 20px #D4AF37,
+          0 0 40px #D4AF37,
+          0 0 80px #D4AF37;
+      }
+    }
+
+    header p {
+      font-size: 1.2rem;
+      margin: 1rem 0 0;
+      line-height: 1.5;
+      font-family: '宋体', serif; /* 中文为辅 */
+      color: #BFBFBF; /* 辅助中文小字为浅灰色 */
+    }
+
+    section {
+      padding: 4rem 1rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    section h2 {
+      color: #D4AF37; /* 金色 */
+      font-size: 2.5rem;
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    section h2.cn {
+      font-size: 1rem;
+      font-family: '宋体', serif; /* 中文为辅 */
+      color: #BFBFBF; /* 辅助中文小字 */
+      margin-top: -1.5rem;
+    }
+
+    .content {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    .content-item {
+      background: rgba(42, 42, 64, 0.8);
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      transition: transform 0.3s, box-shadow 0.3s;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(212, 175, 55, 0.1);
+      position: relative;
+      overflow: hidden;
+      transform-style: preserve-3d;
+      transition: transform 0.6s;
+    }
+
+    .content-item:hover {
+      transform: rotateY(10deg) rotateX(5deg);
+      border-color: rgba(212, 175, 55, 0.3);
+    }
+
+    .content-item h3 {
+      color: #D4AF37; /* 金色 */
+      margin-top: 0;
+      font-size: 1.8rem;
+    }
+
+    .content-item h3.cn {
+      font-size: 1rem;
+      font-family: '宋体', serif; /* 中文为辅 */
+      color: #BFBFBF; /* 辅助中文小字 */
+      margin-top: 0.5rem;
+    }
+
+    .content-item p {
+      line-height: 1.8;
+      font-size: 1rem;
+    }
+
+    .content-item p.cn {
+      font-size: 0.9rem;
+      font-family: '宋体', serif; /* 中文为辅 */
+      color: #BFBFBF; /* 辅助中文小字 */
+      margin-top: 0.5rem;
+    }
+
+    .button-container {
+      text-align: center;
+      margin-top: 3rem;
+    }
+
+    .button-container a {
+      display: inline-block;
+      text-decoration: none;
+      background: linear-gradient(45deg, #D4AF37, #FFD700);
+      color: #1B1B2F; /* 深墨蓝 */
+      padding: 1rem 2.5rem;
+      border-radius: 5px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      transition: background-color 0.3s, transform 0.3s;
+      font-family: 'Georgia', 'Times New Roman', serif; /* 英文字体 */
+      position: relative;
+      overflow: hidden;
+    }
+
+    .button-container a::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: rgba(255,255,255,0.1);
+      transform: rotate(45deg);
+      animation: shine-button 3s infinite;
+    }
+
+    @keyframes shine-button {
+      from { transform: translateX(-100%) rotate(45deg); }
+      to { transform: translateX(100%) rotate(45deg); }
+    }
+
+    .button-container a:hover {
+      background-color: #C49B32; /* 柔和金 */
+      transform: translateY(-3px);
+    }
+
+    .button-container p {
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+      font-family: '宋体', serif; /* 中文为辅 */
+      color: #BFBFBF; /* 中文小字 */
+    }
+
+    footer {
+      background-color: #2A2A40;
+      color: #EAEAEA;
+      text-align: center;
+      padding: 2rem 0;
+      margin-top: 3rem;
+      position: relative;
+      border-top: 1px solid rgba(212, 175, 55, 0.2);
+    }
+
+    footer .main-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+
+    footer .copyright {
+      margin-bottom: 1.5rem;
+    }
+
+    footer .copyright p {
+      margin: 0;
+      font-size: 0.9rem;
+      color: #BFBFBF;
+    }
+
+    .team-members {
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid rgba(212, 175, 55, 0.1);
+    }
+
+    .team-members p:first-child {
+      color: #D4AF37;
+      margin-bottom: 1rem;
+      font-size: 1.1rem;
+    }
+
+    .team-members p {
+      margin: 0.3rem 0;
+      color: #BFBFBF;
+    }
+
+    .university-info {
+      position: absolute;
+      bottom: 1rem;
+      right: 1rem;
+      text-align: right;
+      padding: 1rem;
+    }
+
+    .university-info p {
+      margin: 0;
+      font-size: 0.85rem;
+      color: #D4AF37;
+      line-height: 1.4;
+    }
+
+    #particles-js {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+
+    .content-item::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(
+        45deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.1) 50%,
+        transparent 100%
+      );
+      transform: rotate(45deg);
+      animation: shine-card 3s infinite;
+    }
+
+    @keyframes shine-card {
+      0% { transform: translateX(-100%) rotate(45deg); }
+      100% { transform: translateX(100%) rotate(45deg); }
+    }
+
+    .flip-cards-container {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2rem;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .flip-card {
+      background-color: transparent;
+      width: 300px;
+      height: 300px;
+      perspective: 1000px;
+      margin: 0 auto;
+    }
+
+    .flip-card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      text-align: center;
+      transition: transform 0.8s;
+      transform-style: preserve-3d;
+      cursor: pointer;
+    }
+
+    .flip-card:hover .flip-card-inner {
+      transform: rotateY(180deg);
+    }
+
+    .flip-card-front, .flip-card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 15px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      overflow: hidden;
+      box-sizing: border-box;
+    }
+
+    .flip-card-front {
+      background: #2A2A40;
+      border: 2px solid rgba(212, 175, 55, 0.3);
+    }
+
+    .flip-card-back {
+      background: #2A2A40;
+      transform: rotateY(180deg);
+      border: 2px solid rgba(212, 175, 55, 0.3);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 1rem;
+    }
+
+    .flip-card-back h4 {
+      color: #D4AF37; /* 金色 */
+      margin: 0 0 1rem 0;
+      font-size: 1.2rem;
+    }
+
+    .flip-card-back p {
+      margin: 0.3rem 0;
+      color: #EAEAEA;
+      font-size: 0.9rem;
+    }
+
+    .flip-card-back p.cn {
+      font-size: 0.85rem;
+    }
+
+    .flip-card-back p.en {
+      font-size: 0.8rem;
+    }
+
+    .flip-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+
+    .flip-card:hover img {
+      transform: scale(1.1);
+    }
+
+    @media (max-width: 768px) {
+      .flip-cards-container {
+        grid-template-columns: 1fr;
+      }
+      
+      .flip-card {
+        width: 250px;
+        height: 250px;
+      }
+    }
+
+    /* 时间轴样式 */
+    .story-timeline {
+      position: relative;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 40px 0;
+    }
+
+    /* 时间轴中线 */
+    .story-timeline::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 2px;
+      height: 100%;
+      background: linear-gradient(to bottom, 
+        rgba(212, 175, 55, 0.1),
+        rgba(212, 175, 55, 0.5),
+        rgba(212, 175, 55, 0.1)
+      );
+    }
+
+    /* 时间轴项目 */
+    .timeline-item {
+      position: relative;
+      margin-bottom: 60px;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+
+    /* 时间轴圆点 */
+    .timeline-dot {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #D4AF37;
+      box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+    }
+
+    /* 内容容器 */
+    .timeline-content {
+      width: 45%;
+      padding: 20px;
+      background: rgba(42, 42, 64, 0.8);
+      border-radius: 10px;
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      backdrop-filter: blur(10px);
+      transform: translateX(60%);
+    }
+
+    /* 交替内容位置 */
+    .timeline-item:nth-child(even) .timeline-content {
+      transform: translateX(-60%);
+    }
+
+    /* 时间标签 */
+    .timeline-date {
+      display: inline-block;
+      padding: 5px 10px;
+      background: rgba(212, 175, 55, 0.2);
+      border-radius: 15px;
+      font-size: 0.9rem;
+      color: #D4AF37;
+      margin: 10px 0;
+    }
+
+    /* 响应式设计 */
+    @media (max-width: 768px) {
+      .story-timeline::before {
+        left: 30px;
+      }
+      
+      .timeline-content {
+        width: calc(100% - 80px);
+        transform: translateX(80px) !important;
+      }
+      
+      .timeline-dot {
+        left: 30px;
+      }
+    }
+
+    /* 内容样式 */
+    .timeline-content h3 {
+      color: #D4AF37;
+      margin: 0;
+      font-size: 1.2rem;
+    }
+
+    .timeline-content p {
+      margin: 10px 0;
+      line-height: 1.6;
+    }
+
+    .timeline-content p.cn {
+      font-size: 0.9rem;
+      font-family: '宋体', serif;
+      color: #BFBFBF;
+    }
+
+    .timeline-content p.en {
+      font-size: 0.85rem;
+      color: #EAEAEA;
+    }
+
+    .properties-container {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .property-card {
+      background-color: transparent;
+      width: 300px;
+      height: 300px;
+      perspective: 1000px;
+      margin: 0 auto;
+    }
+
+    .property-card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      text-align: center;
+      transition: transform 0.8s;
+      transform-style: preserve-3d;
+      cursor: pointer;
+    }
+
+    .property-card:hover .property-card-inner {
+      transform: rotateY(180deg);
+    }
+
+    .property-card-front, .property-card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 15px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      overflow: hidden;
+      box-sizing: border-box;
+    }
+
+    .property-card-front {
+      background: #2A2A40;
+      border: 2px solid rgba(212, 175, 55, 0.3);
+    }
+
+    .property-card-back {
+      background: #2A2A40;
+      transform: rotateY(180deg);
+      border: 2px solid rgba(212, 175, 55, 0.3);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 1rem;
+    }
+
+    .property-card-back h3 {
+      color: #D4AF37; /* 金色 */
+      margin: 0 0 1rem 0;
+      font-size: 1.2rem;
+    }
+
+    .property-card-back p {
+      margin: 0.3rem 0;
+      color: #EAEAEA;
+      font-size: 0.9rem;
+    }
+
+    .property-card-back p.cn {
+      font-size: 0.85rem;
+    }
+
+    .property-card-back p.en {
+      font-size: 0.8rem;
+    }
+
+    .property-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+
+    .property-card:hover img {
+      transform: scale(1.1);
+    }
+
+    @media (max-width: 768px) {
+      .properties-container {
+        grid-template-columns: 1fr;
+      }
+      
+      .property-card {
+        width: 250px;
+        height: 250px;
+      }
+    }
+
+    /* 卡片按钮样式 */
+    .card-button {
+      margin-top: 15px;
+      padding: 8px 20px;
+      background: linear-gradient(45deg, #D4AF37, #FFD700);
+      border: none;
+      border-radius: 20px;
+      color: #1B1B2F;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .card-button::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: rgba(255,255,255,0.1);
+      transform: rotate(45deg);
+      animation: shine-button 3s infinite;
+    }
+
+    .card-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
+    }
+
+    .button-en {
+      font-size: 0.8em;
+      opacity: 0.8;
+    }
+
+    /* 修改卡片背面样式以适应按钮 */
+    .flip-card-back {
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    /* 响应式调整 */
+    @media (max-width: 768px) {
+      .card-button {
+        padding: 6px 16px;
+        font-size: 0.9em;
+      }
+    }
+
+    .instructor-info {
+      position: absolute;
+      bottom: 1rem;
+      left: 1rem;
+      text-align: left;
+      padding: 1rem;
+    }
+
+    .instructor-info p {
+      margin: 0;
+      font-size: 0.85rem;
+      color: #D4AF37;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+  <!-- 添加粒子容器 -->
+  <div id="particles-js"></div>
+
+  <!-- Header Section -->
+  <header>
+    <h1>GenStory</h1>
+    <p>赋予材质灵魂的故事</p>
+  </header>
+
+  <!-- Introduction Section -->
+  <section>
+    <h2>Empowering Materials with Stories</h2>
+    <h2 class="cn">赋予材质灵魂的故事</h2>
+    <div class="content">
+      <div class="content-item" data-aos="fade-up">
+        <h3>Every Gem Holds Its Own Story</h3>
+        <h3 class="cn">每一颗宝石，都有自己的故事</h3>
+        <p>
+          Over the course of time, materials are not only gifts of nature but also carriers of cultural heritage.
+          From the eternal brilliance of gold to the pure aura of white crystal, every material embodies history,
+          warmth, and spirit.
+        </p>
+        <p class="cn">
+          在漫长的时光中，材质不仅是自然的馈赠，更是文化的沉淀。从黄金的永恒辉煌，到白水晶的清净灵气，
+          每一种材质都承载着历史的温度与灵魂。
+        </p>
+      </div>
+
+      <div class="content-item" data-aos="fade-up">
+        <h3>Knowledge Graph Functionality</h3>
+        <h3 class="cn">知识图谱功能</h3>
+        <p>
+          Powered by knowledge graph technology from Chinese classics (e.g., *Compendium of Materia Medica*, 
+          *The Classic of Mountains and Seas*, *The Buddhist Canon*), GenStory reveals the cultural lineage of materials.
+          It uncovers their historical roots and spiritual significance, offering brands profound cultural insights.
+        </p>
+        <p class="cn">
+          基于中华古籍（如《本草纲目》《山海经》《大藏经》）的知识图谱技术，探索材质的文化脉。
+          它追溯材质在古籍中的历史渊源与灵性意义，为品牌提供深度的文化背景。
+        </p>
+      </div>
+
+      <div class="content-item" data-aos="fade-up">
+        <h3>GPT Q&amp;A Module</h3>
+        <h3 class="cn">GPT 问答模块</h3>
+        <p>
+          Curious about the story behind a material? Input your question into the GPT Q&amp;A module, and GenStory 
+          will provide you with answers. From historical significance to brand storytelling, we bring materials 
+          to life by making their stories resonate.
+        </p>
+        <p class="cn">
+          想知道材质背后的故事？通过 GPT 问答模块输入您的疑问，GenStory 将为您解答。
+          从材质的历史价值到品牌化叙事，我们为每一块材质赋予生命，让它们的故事“活”起来。
+        </p>
+      </div>
+
+      <div class="button-container">
+        <a href="graph_visualization.html">Start Exploring</a>
+        <p>开始探索</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 在 footer 前添加反转卡片区域 -->
+  <section>
+    <h2>Material Gallery</h2>
+    <h2 class="cn">材质展示</h2>
+    
+    <div class="flip-cards-container">
+      <!-- 卡片 1 - 琥珀 -->
+      <div class="flip-card" data-aos="fade-up">
+        <div class="flip-card-inner">
+          <div class="flip-card-front">
+            <img src="1.jpg" alt="Amber Front">
+          </div>
+          <div class="flip-card-back">
+            <h4>琥珀 | Amber</h4>
+            <p class="cn">远古树脂的结晶</p>
+            <p class="cn">承载着数百万年前的生命印记</p>
+            <p class="en">Ancient resin crystals</p>
+            <p class="en">carrying life imprints from millions of years ago</p>
+            <button class="card-button" onclick="modifyText('琥珀'); window.location.href='graph_visualization.html?material=amber'">
+              探索更多
+              <span class="button-en">Explore More</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 卡片 2 - 白石英 -->
+      <div class="flip-card" data-aos="fade-up" data-aos-delay="100">
+        <div class="flip-card-inner">
+          <div class="flip-card-front">
+            <img src="2.jpg" alt="White Quartz Front">
+          </div>
+          <div class="flip-card-back">
+            <h4>白石英 | White Quartz</h4>
+            <p class="cn">纯净通透的能量晶石</p>
+            <p class="cn">蕴含着自然的灵性力量</p>
+            <p class="en">Pure and transparent energy crystal</p>
+            <p class="en">containing natural spiritual power</p>
+            <button class="card-button" onclick="modifyText('白石英'); window.location.href='graph_visualization.html?material=amber'">
+              探索更多
+              <span class="button-en">Explore More</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 卡片 3 - 玉石 -->
+      <div class="flip-card" data-aos="fade-up" data-aos-delay="200">
+        <div class="flip-card-inner">
+          <div class="flip-card-front">
+            <img src="3.jpg" alt="Jade Front">
+          </div>
+          <div class="flip-card-back">
+            <h4>玉石 | Jade</h4>
+            <p class="cn">温润如玉，品德之象征</p>
+            <p class="cn">中华文化的瑰宝</p>
+            <p class="en">Warm and gentle, symbol of virtue</p>
+            <p class="en">treasure of Chinese culture</p>
+            <button class="card-button" onclick="modifyText('玉石'); window.location.href='graph_visualization.html?material=amber'">
+              探索更多
+              <span class="button-en">Explore More</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 卡片 4 - 珍珠 -->
+      <div class="flip-card" data-aos="fade-up" data-aos-delay="300">
+        <div class="flip-card-inner">
+          <div class="flip-card-front">
+            <img src="4.jpg" alt="Pearl Front">
+          </div>
+          <div class="flip-card-back">
+            <h4>珍珠 | Pearl</h4>
+            <p class="cn">海洋孕育的优雅宝石</p>
+            <p class="cn">散发柔和月光般的光泽</p>
+            <p class="en">An elegant gem born from the ocean</p>
+            <p class="en">emanating a soft moonlight-like luster</p>
+            <button class="card-button" onclick="modifyText('珍珠'); window.location.href='graph_visualization.html?material=amber'">
+              探索更多
+              <span class="button-en">Explore More</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 在 Material Gallery section 后添加 -->
+  <section>
+    <h2>Material Stories</h2>
+    <h2 class="cn">材质典故</h2>
+    
+    <div class="story-timeline">
+      <!-- 琥珀的故事 -->
+      <div class="timeline-item" data-aos="fade-up">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <h3>琥珀 | Amber</h3>
+          <span class="timeline-date">日月精华</span>
+          <p class="cn">相传在远古时期，琥珀是古树滴落的精华，历经千万年凝结而成。它被称为"虎魄"，寓意勇猛与护佑，也被视为天地灵气的结晶，能辟邪安神，传递自然的温暖与光辉。</p>
+          <p class="en">Amber is said to be the essence of ancient trees, crystallized over millions of years. Known as "Tiger's Soul" (虎魄) in Chinese culture, it symbolizes courage and protection. It is regarded as a spiritual gem, embodying the essence of heaven and earth, with the power to ward off evil and bring warmth and light.</p>
+        </div>
+      </div>
+
+      <!-- 白石英的故事 -->
+      <div class="timeline-item" data-aos="fade-up">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <h3>白石英 | White Quartz</h3>
+          <span class="timeline-date">通灵之石</span>
+          <p class="cn">白石英在中国古代被视为"灵石"，晶莹剔透，象征清净与智慧。道家认为，其纯洁之光通达天地，可助修行者凝神静气，跨越尘世与仙界的桥梁。</p>
+          <p class="en">In ancient Chinese culture, white quartz was revered as a "spiritual stone" (灵石), known for its crystal-clear purity and wisdom. Taoists believed its radiant light could connect heaven and earth, aiding practitioners in achieving inner peace and transcending the mortal world to reach the divine.</p>
+        </div>
+      </div>
+
+      <!-- 玉石的故事 -->
+      <div class="timeline-item" data-aos="fade-up">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <h3>玉石 | Jade</h3>
+          <span class="timeline-date">德之符</span>
+          <p class="cn">中国古人认为玉石有五德：温润以泽，仁也；缜密以栗，智也；廉而不刿，义也；垂之如坠，礼也；叩之铿然，乐也。</p>
+          <p class="en">Ancient Chinese believed jade possessed five virtues: benevolence in its warmth and luster, wisdom in its compactness, justice in its purity, propriety in its gravity, and music in its sound.</p>
+        </div>
+      </div>
+
+      <!-- 珍珠的故事 -->
+      <div class="timeline-item" data-aos="fade-up">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <h3>珍珠 | Pearl</h3>
+          <span class="timeline-date">月华凝珠</span>
+          <p class="cn">珍珠自古被誉为"月之精华"，象征纯洁与智慧。中国传统文化认为，珍珠是天地灵气的凝聚，拥有安神、定心的力量。它常被视为高贵的象征，佩戴珍珠不仅展现优雅，还寄托了长寿与富贵的美好祝愿。</p>
+          <p class="en">Pearls have long been revered as the "essence of the moon," symbolizing purity and wisdom. In Chinese tradition, pearls are believed to be the embodiment of natural energy, possessing the power to soothe the spirit and calm the mind. Widely regarded as a symbol of nobility, wearing pearls reflects elegance and conveys blessings of longevity and prosperity.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 材质特性对比区 -->
+  <section>
+    <h2>Material Properties</h2>
+    <h2 class="cn">材质特性</h2>
+    
+    <div class="properties-container">
+      <!-- 硬度对比 -->
+      <div class="property-card" data-aos="fade-up">
+        <h3>硬度 | Hardness</h3>
+        <p class="cn">玉石硬度：6-7级</p>
+        <p class="cn">白石英硬度：7级</p>
+        <p class="cn">琥珀硬度：2-2.5级</p>
+        <p class="cn">珍珠硬度：2.5-4.5级</p>
+        <p class="en">Jade: 6-7 Mohs</p>
+        <p class="en">White Quartz: 7 Mohs</p>
+        <p class="en">Amber: 2-2.5 Mohs</p>
+        <p class="en">Pearl: 2.5-4.5 Mohs</p>
+      </div>
+      
+      <!-- 透明度 -->
+      <div class="property-card" data-aos="fade-up">
+        <h3>透明度 | Transparency</h3>
+        <p class="cn">玉石：半透明至不透明</p>
+        <p class="cn">白石英：透明至半透明</p>
+        <p class="cn">琥珀：透明至半透明</p>
+        <p class="cn">珍珠：不透明</p>
+        <p class="en">Jade: Translucent to Opaque</p>
+        <p class="en">White Quartz: Transparent to Translucent</p>
+        <p class="en">Amber: Transparent to Translucent</p>
+        <p class="en">Pearl: Opaque</p>
+      </div>
+      
+      <!-- 形成年代 -->
+      <div class="property-card" data-aos="fade-up">
+        <h3>形成年代 | Formation Period</h3>
+        <p class="cn">玉石：数百万年</p>
+        <p class="cn">白石英：数百万至上亿年</p>
+        <p class="cn">琥珀：2000-6000万年</p>
+        <p class="cn">珍珠：数月至数年</p>
+        <p class="en">Jade: Millions of years</p>
+        <p class="en">White Quartz: Millions to hundreds of millions years</p>
+        <p class="en">Amber: 20-60 million years</p>
+        <p class="en">Pearl: Months to years</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 应用场景展示 -->
+  <section>
+    <h2>Applications</h2>
+    <h2 class="cn">应用场景</h2>
+    
+    <div class="application-slider">
+      <!-- 珠宝设计 -->
+      <div class="slide">
+        <h3>珠宝设计 | Jewelry Design</h3>
+        <div class="slide-content">
+          <p class="cn">从古老的帝王项链到现代的时尚饰品，这些天然材质以其独特的美感和文化价值，持续演绎着永恒的魅力。</p>
+          <p class="en">From ancient royal necklaces to modern fashion accessories, these natural materials continue to demonstrate their eternal charm through unique aesthetics and cultural value.</p>
+        </div>
+      </div>
+      
+      <!-- 艺术创作 -->
+      <div class="slide">
+        <h3>艺术创作 | Artistic Creation</h3>
+        <div class="slide-content">
+          <p class="cn">艺术家们借助这些材质的独特性质，创造出跨越时空的艺术作品，传递着深邃的文化内涵。</p>
+          <p class="en">Artists utilize the unique properties of these materials to create timeless artworks that convey profound cultural meanings.</p>
+        </div>
+      </div>
+      
+      <!-- 文化传承 -->
+      <div class="slide">
+        <h3>文化传承 | Cultural Heritage</h3>
+        <div class="slide-content">
+          <p class="cn">这些珍贵材质承载着人类文明的印记，是连接过去与未来的文化桥梁。</p>
+          <p class="en">These precious materials carry the imprints of human civilization, serving as cultural bridges connecting the past and future.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer Section -->
+  <footer>
+    <div class="main-content">
+      <div class="copyright">
+        <p>© 2024 GenStory. Connecting Materials with the World Through Stories</p>
+        <p>通过故事将材质与世界连接</p>
+      </div>
+      
+      <div class="team-members">
+        <p>Team Members | 制作团队</p>
+        <p>XU YILONG 24072133G</p>
+        <p>CHEN YANA 24040011G</p>
+        <p>YOU JIESHUN 24041917G</p>
+        <p>LIU MINGYANG 24108434G</p>
+        <p>ZHENG QIANGUO 24102328G</p>
+        <p>LI QISHU 24046674G</p>
+        <p>QIU CHENGYAN 24037283G</p>
+      </div>
+    </div>
+    
+    <div class="instructor-info">
+      <p>Instructor: Dr. Jing CHEN</p>
+    </div>
+    
+    <div class="university-info">
+      <p>The Hong Kong Polytechnic University</p>
+      <p>DIGITAL STUDIES OF CHINESE CULTURE</p>
+    </div>
+  </footer>
+
+  <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+  <script>
+    AOS.init({
+      duration: 1000,
+      once: true
+    });
+
+
+    // 初始化粒子效果
+    particlesJS('particles-js',
+      {
+        "particles": {
+          "number": {
+            "value": 80,
+            "density": {
+              "enable": true,
+              "value_area": 800
+            }
+          },
+          "color": {
+            "value": "#D4AF37"
+          },
+          "shape": {
+            "type": "circle"
+          },
+          "opacity": {
+            "value": 0.5,
+            "random": true
+          },
+          "size": {
+            "value": 3,
+            "random": true
+          },
+          "line_linked": {
+            "enable": true,
+            "distance": 150,
+            "color": "#D4AF37",
+            "opacity": 0.4,
+            "width": 1
+          },
+          "move": {
+            "enable": true,
+            "speed": 2,
+            "direction": "none",
+            "random": true,
+            "straight": false,
+            "out_mode": "out",
+            "bounce": false
+          }
+        },
+        "interactivity": {
+          "detect_on": "canvas",
+          "events": {
+            "onhover": {
+              "enable": true,
+              "mode": "grab"
+            },
+            "onclick": {
+              "enable": true,
+              "mode": "push"
+            },
+            "resize": true
+          }
+        },
+        "retina_detect": true
+      }
+    );
+
+    // 添加鼠标跟随效果
+    document.addEventListener('mousemove', (e) => {
+      const cursor = e.clientX / window.innerWidth - 0.5;
+      const cards = document.querySelectorAll('.content-item');
+      
+      cards.forEach(card => {
+        const bound = card.getBoundingClientRect();
+        const cardCenter = bound.left + bound.width / 2;
+        const distance = (e.clientX - cardCenter) / window.innerWidth;
+        
+        card.style.transform = `
+          perspective(1000px)
+          rotateY(${distance * 10}deg)
+          rotateX(${(e.clientY / window.innerHeight - 0.5) * 10}deg)
+        `;
+      });
+    });
+
+
+    async function modifyText(newText) {
+      try {
+        const response = await fetch('http://127.0.0.1:8000/modify_text', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            query: newText,
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+
+        } else {
+          addMessage('抱歉，处理您的问题时出现错误，请稍后重试。', 'bot');
+          console.error('Query error:', response.statusText);
+        }
+      } catch (error) {
+        addMessage('抱歉，连接服务器时出现错误，请检查服务是否正常运行。', 'bot');
+        console.error('API call error:', error);
+      }
+    }
+  </script>
+
+</body></html>
