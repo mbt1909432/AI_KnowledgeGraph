@@ -1,6 +1,9 @@
 # AI_KnowledgeGraph
 LLM-based knowledge graph constructor and query system
 
+## 演示 GIF
+
+![演示 GIF](assets/demo.gif)
 
 ## Overview
 
