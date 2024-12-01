@@ -38,7 +38,7 @@ uvicorn app:app --reload --host 0.0.0.0
 # Start the Frontend
 In another terminal window, run the following command to start the frontend:
 
-python -m http.server 5173 --directory FrontendCode/test/final
+python -m http.server 5173 --directory .\FrontendCode\code
 
 Open your browser and go to the following address to view the frontend:
 
